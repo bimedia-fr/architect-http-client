@@ -1,0 +1,6 @@
+{
+    "headers": {"accept-ranges": "bytes"},
+    "body": {
+        "data": "test"
+    }
+}
