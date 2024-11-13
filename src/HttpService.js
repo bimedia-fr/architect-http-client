@@ -144,7 +144,7 @@ class HttpService {
             ...options.headers
         };
 
-        if(['POST', 'PUT'].includes(options?.method) && (!options?.headers?.['Content-Type'] || !options?.headers?.['content-type']))
+        if(['POST', 'PUT'].includes(options?.method) && (!options?.headers?.['Content-Type'] || !options?.headers?.['Content-Type']))
             headers['Content-Type'] = 'application/json';
 
         if(this.customIdHeader && reqId) {
@@ -313,7 +313,8 @@ class HttpService {
 
         options ??= {};
         options.method ??= 'POST';
-        options.body ??= JSON.stringify(body);
+        let isCt = options?.headers?.['Content-Type'];
+        options.body ??= isCt ? body : JSON.stringify(body);
 
         return this.undici(path, options, mode, reqId, jsonParseRequest);
     }
@@ -333,10 +334,8 @@ class HttpService {
     async put(path, body, options, mode, reqId, jsonParseRequest) {
         options ??= {};
         options.method ??= 'PUT';
-
-        if (options.body == null && body) {
-            options.body = JSON.stringify(body);
-        }
+        let isCt = options?.headers?.['Content-Type'];
+        options.body ??= isCt ? body : JSON.stringify(body);
 
         return this.undici(path, options, mode, reqId, jsonParseRequest);
     }
