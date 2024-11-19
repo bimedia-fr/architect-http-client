@@ -39,13 +39,13 @@ class HttpService {
      * @param {string} jsonParseRequest - If mode jsonStream, pass à JSONStream option
      * @returns {Promise<Object>} - Return the result of http call
      */
-    async undici(path, options = {}, mode = 'json', reqId, jsonParseRequest) {
+    async undici(path, options = {}, mode = 'json', reqId = null, jsonParseRequest) {
         this._validateMode(mode);
         path = this._constructPath(path);
         options = this._constructOptions(options, reqId);
 
         if(!this.disableInfoLog)
-            this.log.info(`request ${options.method} ${path}` + reqId ? ` ${reqId}` : '');
+            this.log.info(`request ${options.method} ${path} ` + (reqId || ''));
 
         if(mode === 'fullResponse')
             return this.dispatcher ? this.dispatcher.request({ path, ...options })
@@ -144,7 +144,7 @@ class HttpService {
             ...options.headers
         };
 
-        if(['POST', 'PUT'].includes(options?.method) && (!options?.headers?.['Content-Type'] || !options?.headers?.['Content-Type']))
+        if(['POST', 'PUT'].includes(options?.method) && (!options?.headers?.['Content-Type']))
             headers['Content-Type'] = 'application/json';
 
         if(this.customIdHeader && reqId) {
@@ -306,14 +306,15 @@ class HttpService {
      * @param {String} jsonParseRequest If jsonStream, perform a JSONStream body output
      * @returns {Promise<Object>} HTTP call result
      */
-    post(path, body, options, mode, reqId, jsonParseRequest) {
+    post(path, body, options, mode = 'json', reqId, jsonParseRequest) {
         if (body === null) {
             throw new Error('Body is missing');
         }
 
         options ??= {};
         options.method ??= 'POST';
-        let isCt = options?.headers?.['Content-Type'];
+        let isCt = options?.headers?.['Content-Type'] &&
+            options?.headers?.['Content-Type'] !== 'application/json';
         options.body ??= isCt ? body : JSON.stringify(body);
 
         return this.undici(path, options, mode, reqId, jsonParseRequest);
@@ -331,10 +332,11 @@ class HttpService {
      * @param {String} jsonParseRequest If jsonStream, perform a JSONStream body output
      * @returns {Promise<Object>} HTTP call result
      */
-    async put(path, body, options, mode, reqId, jsonParseRequest) {
+    async put(path, body, options, mode = 'json', reqId, jsonParseRequest) {
         options ??= {};
         options.method ??= 'PUT';
-        let isCt = options?.headers?.['Content-Type'];
+        let isCt = options?.headers?.['Content-Type'] &&
+            options?.headers?.['Content-Type'] !== 'application/json';
         options.body ??= isCt ? body : JSON.stringify(body);
 
         return this.undici(path, options, mode, reqId, jsonParseRequest);
