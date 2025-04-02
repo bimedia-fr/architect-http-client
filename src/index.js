@@ -10,19 +10,20 @@ module.exports = async function (options, imports, register) {
             }
         }
         register(null, {
-            onDestroy: function (cb) {
+            onDestroy: function () {
                 return (async () => {
+                    let isGlobalDispatchClosed = false;
                     for(let key in httpServices) {
                         if((typeof httpServices[key] === 'object') && httpServices[key].dispatcher) {
                             await httpServices[key].dispatcher.close();
                         }
-                        else if((typeof httpServices[key] === 'object') && httpServices[key].globalDispatcher) {
+                        else if((typeof httpServices[key] === 'object') && httpServices[key].globalDispatcher && !isGlobalDispatchClosed) {
                             await httpServices[key].globalDispatcher.close();
+                            isGlobalDispatchClosed = true;
                         }
                     }
                 })()
-                    .then(() => cb)
-                    .catch(err => cb(err));
+                    .then(() => {});
             },
             httpService: httpServices
         });
