@@ -343,6 +343,27 @@ class HttpService {
     }
 
     /**
+     * PATCH method shortcut
+     * @name patch
+     * @param {String} path Path or URL to call
+     * @param {Object} body Body to transmit
+     * @param {Object} options Undici base options
+     * @param {String} mode Output mode for response body
+     * 'json', 'text', 'jsonStream', 'textStream', 'directStream', 'fullResponse' or null. JSON default.
+     * @param {String} reqId Request ID (for logging or custom header)
+     * @param {String} jsonParseRequest If jsonStream, perform a JSONStream body output
+     * @returns {Promise<Object>} HTTP call result
+     */
+    async patch(path, body, options, mode, reqId, jsonParseRequest) {
+        options ??= {};
+        options.method ??= 'PATCH';
+        let isCt = options?.headers?.['Content-Type'] &&
+            options?.headers?.['Content-Type'] !== 'application/json';
+        options.body ??= isCt ? body : JSON.stringify(body);
+        return this.undici(path, options, mode || 'json', reqId, jsonParseRequest);
+    }
+
+    /**
      * DELETE method shortcut
      * @name delete
      * @param {String} path Path or URL to call
