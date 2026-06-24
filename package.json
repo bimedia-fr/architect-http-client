@@ -1,6 +1,6 @@
 {
     "name": "architect-http-client",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "Architect module for making http calls",
     "main": "src/index.js",
     "scripts": {
